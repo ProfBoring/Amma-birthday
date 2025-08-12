@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Happy Birthday Amma</title>
+<style>
+  body {
+    margin: 0;
+    background-color: #ffd6e8; /* pastel pink */
+    font-family: 'Arial', sans-serif;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  #game-container {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .balloon {
+    position: absolute;
+    width: 50px;
+    height: 70px;
+    background-color: red;
+    border-radius: 50% 50% 50% 50%;
+    cursor: pointer;
+    animation: floatUp linear forwards;
+  }
+
+  @keyframes floatUp {
+    0% { transform: translateY(100vh); }
+    100% { transform: translateY(-120px); }
+  }
+
+  #cat-helper {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    width: 100px;
+    text-align: center;
+    font-size: 14px;
+  }
+
+  #cat-helper img {
+    width: 80px;
+    height: auto;
+  }
+
+  #counter {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: white;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+  }
+
+  #end-screen {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(255, 214, 232, 0.95);
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+  }
+
+  #end-screen img {
+    max-width: 200px;
+    margin-top: 10px;
+  }
+
+  h1 {
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+
+  p {
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+</style>
+</head>
+<body>
+
+<div id="counter">Balloons: 0 / 20</div>
+
+<div id="game-container"></div>
+
+<div id="cat-helper">
+  <img src="https://i.imgur.com/VlnXZPf.gif" alt="Cat Encouraging">
+  <div id="cat-dialogue">You can do it Amma!</div>
+</div>
+
+<div id="end-screen">
+  <h1>🎉 Happy Birthday Amma! 🎉</h1>
+  <img src="https://media.tenor.com/8vOigA6y9VUAAAAi/cake.gif" alt="Cake">
+  <img src="https://i.imgur.com/VlnXZPf.gif" alt="Dancing Cat">
+  <p>Amma, I love you so much. Thank you for everything you’ve done for me.<br>
+  I promise I’ll make you proud again and again.<br>
+  You’re the best. 💖</p>
+</div>
+
+<script>
+const gameContainer = document.getElementById("game-container");
+const counterEl = document.getElementById("counter");
+const catDialogue = document.getElementById("cat-dialogue");
+const endScreen = document.getElementById("end-screen");
+
+let poppedCount = 0;
+const dialogues = [
+  "You can do it Amma!",
+  "Go Amma, go!",
+  "Almost there Amma!",
+  "Keep going Amma!",
+  "You’re amazing Amma!"
+];
+
+function createBalloon() {
+  const balloon = document.createElement("div");
+  balloon.classList.add("balloon");
+  balloon.style.left = Math.random() * (window.innerWidth - 50) + "px";
+  balloon.style.backgroundColor = getRandomColor();
+  balloon.style.animationDuration = (6 + Math.random() * 3) + "s"; // slower balloons
+  balloon.addEventListener("click", () => popBalloon(balloon));
+  gameContainer.appendChild(balloon);
+
+  setTimeout(() => {
+    balloon.remove();
+    if (poppedCount < 20) createBalloon();
+  }, (parseFloat(balloon.style.animationDuration) * 1000));
+}
+
+function popBalloon(balloon) {
+  poppedCount++;
+  balloon.remove();
+  counterEl.textContent = `Balloons: ${poppedCount} / 20`;
+
+  if (poppedCount % 4 === 0 && poppedCount < 20) {
+    catDialogue.textContent = dialogues[(poppedCount / 4) % dialogues.length];
+  }
+
+  if (poppedCount < 20) {
+    createBalloon();
+  } else {
+    showEndScreen();
+  }
+}
+
+function showEndScreen() {
+  endScreen.style.display = "flex";
+  launchConfetti();
+}
+
+function getRandomColor() {
+  const colors = ["#ff7675", "#74b9ff", "#55efc4", "#ffeaa7", "#fd79a8", "#a29bfe"];
+  return colors[Math.floor(Math.random() * colors.length)];
+}
+
+function launchConfetti() {
+  const duration = 2 * 1000;
+  const end = Date.now() + duration;
+  (function frame() {
+    for (let i = 0; i < 5; i++) {
+      createConfetti();
+    }
+    if (Date.now() < end) {
+      requestAnimationFrame(frame);
+    }
+  })();
+}
+
+function createConfetti() {
+  const confetti = document.createElement("div");
+  confetti.style.position = "absolute";
+  confetti.style.width = "8px";
+  confetti.style.height = "8px";
+  confetti.style.backgroundColor = getRandomColor();
+  confetti.style.top = "0px";
+  confetti.style.left = Math.random() * window.innerWidth + "px";
+  confetti.style.opacity = "1";
+  confetti.style.transform = "rotate(" + Math.random() * 360 + "deg)";
+  confetti.style.transition = "transform 2s linear, top 2s linear, opacity 2s linear";
+  document.body.appendChild(confetti);
+
+  setTimeout(() => {
+    confetti.style.top = window.innerHeight + "px";
+    confetti.style.opacity = "0";
+  }, 50);
+
+  setTimeout(() => {
+    confetti.remove();
+  }, 2000);
+}
+
+// Start game
+createBalloon();
+</script>
+</body>
+</html>
